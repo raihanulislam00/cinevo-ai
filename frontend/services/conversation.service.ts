@@ -1,0 +1,1 @@
+import api, { unwrap } from "./api"; import type { Conversation } from "@/types"; export const conversationService = { list: () => api.get<unknown>("/conversations").then((r) => unwrap<Conversation[]>(r)), get: (id: string) => api.get<unknown>(`/conversations/${id}`).then((r) => unwrap<Conversation>(r)) };

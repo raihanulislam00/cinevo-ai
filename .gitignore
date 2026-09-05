@@ -1,0 +1,21 @@
+# Dependencies and build output
+node_modules/
+.next/
+dist/
+coverage/
+
+# Local environment files and secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Local databases, logs, and OS/editor files
+*.db
+*.sqlite
+*.log
+.DS_Store
+.vscode/
+
+# Preserve nested repository backups outside the published source tree
+.git-local-backup/

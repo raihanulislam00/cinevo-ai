@@ -1,0 +1,3 @@
+import { IsIn, IsInt, IsObject, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
+export class CreateVideoDto { @IsString() @MaxLength(200) title!: string; @IsOptional() @IsString() @MaxLength(10_000) description?: string; @IsOptional() @IsString() conversationId?: string; @IsObject() videoPlan!: Record<string, unknown>; }
+export class ListVideosDto { @IsOptional() @IsInt() @Min(1) page = 1; @IsOptional() @IsInt() @Min(1) @Max(100) pageSize = 20; @IsOptional() @IsIn(['Pending', 'Processing', 'Completed', 'Failed', 'Cancelled']) status?: 'Pending' | 'Processing' | 'Completed' | 'Failed' | 'Cancelled'; @IsOptional() @IsString() search?: string; }

@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum VideoStatus {
+  Pending
+  Processing
+  Completed
+  Failed
+  Cancelled
+}
+
+enum MessageRole {
+  User
+  Gemini
+}
+
+model User {
+  id           String         @id @default(uuid()) @db.Uuid
+  name         String
+  email        String         @unique
+  passwordHash String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  refreshTokens RefreshToken[]
+  conversations Conversation[]
+  videos       Video[]
+  @@index([email])
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  tokenHash String   @unique
+  userId    String   @db.Uuid
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+}
+
+model Conversation {
+  id        String        @id @default(uuid()) @db.Uuid
+  title     String
+  userId    String        @db.Uuid
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  ChatMessage[]
+  videos    Video[]
+  @@index([userId, updatedAt])
+}
+
+model ChatMessage {
+  id             String        @id @default(uuid()) @db.Uuid
+  conversationId String        @db.Uuid
+  role           MessageRole
+  content        String
+  createdAt      DateTime      @default(now())
+  conversation   Conversation   @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  @@index([conversationId, createdAt])
+}
+
+model Video {
+  id             String               @id @default(uuid()) @db.Uuid
+  userId         String               @db.Uuid
+  conversationId String?              @db.Uuid
+  title          String
+  description    String?
+  status         VideoStatus          @default(Pending)
+  videoPlan      Json
+  outputUrl      String?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  user           User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversation   Conversation?        @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  scenes         VideoScene[]
+  jobs           VideoGenerationJob[]
+  @@index([userId, status, createdAt])
+}
+
+model VideoScene {
+  id          String   @id @default(uuid()) @db.Uuid
+  videoId     String   @db.Uuid
+  sceneNumber Int
+  duration    Int
+  visualPrompt String
+  narration   String
+  textOverlay String?
+  video       Video    @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  @@unique([videoId, sceneNumber])
+}
+
+model VideoGenerationJob {
+  id            String      @id @default(uuid()) @db.Uuid
+  videoId       String      @db.Uuid
+  status        VideoStatus @default(Pending)
+  progress      Int         @default(0)
+  attempts      Int         @default(0)
+  provider      String
+  providerJobId String?
+  errorMessage  String?
+  startedAt     DateTime?
+  completedAt   DateTime?
+  createdAt     DateTime    @default(now())
+  video         Video       @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  @@index([videoId, status])
+}

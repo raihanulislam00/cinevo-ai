@@ -1,0 +1,2 @@
+export interface VideoScenePlan { sceneNumber: number; duration: number; visualPrompt: string; narration: string; textOverlay?: string; }
+export interface VideoPlan { title: string; description: string; targetAudience: string; duration: number; platform: string; style: string; hook: string; scenes: VideoScenePlan[]; music: { style: string; mood: string }; cta: string; keywords: string[]; hashtags: string[]; }
