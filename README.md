@@ -350,6 +350,20 @@ The frontend must point to a publicly reachable HTTPS backend. A local `localhos
 
 The backend is a long-running NestJS process with Redis/BullMQ and Socket.IO. Deploy it to a host that supports persistent Node.js services and WebSockets, such as Railway, Render, Fly.io, a VPS, or a managed container platform. Vercel serverless functions are not a suitable host for this backend worker and Socket.IO gateway without a separate realtime service.
 
+#### Render Docker setup
+
+The repository includes a root `Dockerfile` that builds the backend from `backend/`. Use these Render Web Service settings:
+
+1. **Environment:** `Docker`
+2. **Dockerfile path:** `./Dockerfile`
+3. **Docker build context:** `.`
+4. **Health check path:** `/api/health`
+5. **Port:** `9000` if Render asks for an explicit port
+
+Alternatively, use the existing `backend/Dockerfile` by setting **Root Directory** to `backend`, **Dockerfile path** to `Dockerfile`, and **Docker build context** to `.`. Do not set the root directory to `frontend` for the API service.
+
+Use Render PostgreSQL and Redis connection values in the backend environment. Do not use `localhost`, `postgres`, or `redis` for hosted services. Set `CORS_ORIGIN` to the deployed Vercel URL.
+
 Production backend requirements:
 
 1. Provision hosted PostgreSQL.
