@@ -346,6 +346,24 @@ Vercel is a good fit for the Next.js frontend.
 
 The frontend must point to a publicly reachable HTTPS backend. A local `localhost` URL will not work from a deployed Vercel page.
 
+### Frontend on Render
+
+You can also deploy the frontend as a separate Render **Web Service**:
+
+1. Create another service from the same GitHub repository.
+2. Set **Root Directory** to `frontend`.
+3. Set **Runtime** to `Node`.
+4. Set **Build Command** to `npm ci && npm run build`.
+5. Set **Start Command** to `npm run start -- --hostname 0.0.0.0 --port $PORT`.
+6. Add these environment variables:
+
+```env
+NEXT_PUBLIC_API_URL=https://your-backend-service.onrender.com/api
+NEXT_PUBLIC_SOCKET_URL=https://your-backend-service.onrender.com
+```
+
+Render provides the frontend `PORT` automatically. Do not set the frontend API variables to `localhost` in production. Deploy the backend first, copy its public HTTPS URL, add it to the frontend variables, and then deploy the frontend.
+
 ### Backend hosting
 
 The backend is a long-running NestJS process with Redis/BullMQ and Socket.IO. Deploy it to a host that supports persistent Node.js services and WebSockets, such as Railway, Render, Fly.io, a VPS, or a managed container platform. Vercel serverless functions are not a suitable host for this backend worker and Socket.IO gateway without a separate realtime service.
