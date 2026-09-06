@@ -1,0 +1,16 @@
+.git
+.git-local-backup
+**/.git
+**/.git-local-backup
+node_modules
+**/node_modules
+.next
+**/.next
+.env
+**/.env
+.env.*
+**/.env.*
+backend/storage
+frontend/storage
+coverage
+**/coverage

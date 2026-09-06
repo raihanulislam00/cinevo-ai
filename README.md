@@ -364,6 +364,19 @@ Alternatively, use the existing `backend/Dockerfile` by setting **Root Directory
 
 Use Render PostgreSQL and Redis connection values in the backend environment. Do not use `localhost`, `postgres`, or `redis` for hosted services. Set `CORS_ORIGIN` to the deployed Vercel URL.
 
+Before deploying, update these Render service variables:
+
+```env
+NODE_ENV=production
+PORT=9000
+DATABASE_URL=<Render PostgreSQL Internal Database URL>
+REDIS_HOST=<Render Redis hostname>
+REDIS_PORT=6379
+CORS_ORIGIN=https://your-frontend.vercel.app
+```
+
+The local value `postgresql://...@localhost:5432/...` only works on your computer. In Render it points back to the API container, which causes Prisma error `P1001: Can't reach database server at localhost:5432`. Copy the internal connection details from the Render PostgreSQL service and Redis service, then redeploy. Run `npx prisma migrate deploy` as the Render release command before starting the web service.
+
 Production backend requirements:
 
 1. Provision hosted PostgreSQL.
