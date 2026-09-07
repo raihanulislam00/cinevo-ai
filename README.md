@@ -202,6 +202,31 @@ npm run start           # serve the production build
 
 ## Docker
 
+### Run the full project
+
+From the repository root, create `backend/.env` from `backend/.env.example`, then run:
+
+```bash
+docker compose up -d --build
+docker compose ps
+```
+
+Open the frontend at `http://localhost:3000`. The API is available at `http://localhost:9000` and Swagger is available at `http://localhost:9000/api/docs`.
+
+The Compose setup starts the frontend, backend, PostgreSQL, and Redis. It applies committed Prisma migrations automatically when the backend starts.
+
+Stop the full project with:
+
+```bash
+docker compose down
+```
+
+To also delete PostgreSQL and generated video data:
+
+```bash
+docker compose down -v
+```
+
 ### Start only infrastructure
 
 This is the recommended local workflow when developing the backend directly with Node.js:

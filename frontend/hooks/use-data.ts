@@ -9,5 +9,6 @@ export function useLogin() { const client = useQueryClient(); return useMutation
 export function useRegister() { return useMutation({ mutationFn: authService.register }); }
 export function useCreateVideo() { const client = useQueryClient(); return useMutation({ mutationFn: videoService.create, onSuccess: () => { void client.invalidateQueries({ queryKey: ["videos"] }); void client.invalidateQueries({ queryKey: ["dashboard"] }); } }); }
 export function useSendMessage() { return useMutation({ mutationFn: aiService.chat }); }
+export function useCreateImage() { return useMutation({ mutationFn: aiService.image }); }
 export function useDeleteVideo() { const client = useQueryClient(); return useMutation({ mutationFn: videoService.remove, onSuccess: () => { void client.invalidateQueries({ queryKey: ["videos"] }); void client.invalidateQueries({ queryKey: ["dashboard"] }); } }); }
 export function starterPlan(): VideoPlan { return { title: "", targetAudience: "", duration: 60, platform: "YouTube Shorts", style: "Cinematic", hook: "", scenes: [{ sceneNumber: 1, duration: 5, visualPrompt: "", narration: "", textOverlay: "" }] }; }

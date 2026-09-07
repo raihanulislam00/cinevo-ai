@@ -13,7 +13,7 @@ export class GeminiService {
   private async ask(prompt: string): Promise<string> {
     const key = this.config.get<string>('GEMINI_API_KEY');
     if (!key) return 'Gemini is not configured. Add GEMINI_API_KEY to enable AI responses.';
-    const model = this.config.get<string>('GEMINI_MODEL', 'gemini-2.5-flash');
+    const model = this.config.get<string>('GEMINI_MODEL', 'gemini-3.6-flash');
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`;
     try {
       const response = await firstValueFrom(this.http.post(endpoint, { contents: [{ parts: [{ text: prompt }] }] }));
@@ -28,6 +28,27 @@ export class GeminiService {
     }
   }
   chat(message: string) { return this.ask(videoAnalysisPrompt(message)); }
+  async generateImage(prompt: string, style: string, aspectRatio: string): Promise<string> {
+    const key = this.config.get<string>('GEMINI_API_KEY');
+    if (!key) throw new BadGatewayException('Gemini is not configured');
+    const model = this.config.get<string>('GEMINI_IMAGE_MODEL', 'gemini-2.5-flash-image-preview');
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`;
+    try {
+      const response = await firstValueFrom(this.http.post(endpoint, {
+        contents: [{ parts: [{ text: `Create a ${style.toLowerCase()} image in ${aspectRatio} aspect ratio. ${prompt}` }] }],
+        generationConfig: { responseModalities: ['IMAGE'] },
+      }));
+      const part = response.data.candidates?.[0]?.content?.parts?.find((item: { inlineData?: { data?: string; mimeType?: string } }) => item.inlineData?.data);
+      const image = part?.inlineData;
+      if (!image?.data || !image.mimeType) throw new Error('Gemini returned no image data');
+      return `data:${image.mimeType};base64,${image.data}`;
+    } catch (error) {
+      const providerError = error as AxiosError<{ error?: { message?: string } }>;
+      const providerMessage = providerError.response?.data?.error?.message ?? (error instanceof Error ? error.message : 'Unknown provider error');
+      console.error({ provider: 'gemini-image', model, status: providerError.response?.status, message: providerMessage });
+      throw new BadGatewayException('Image generation failed. Check GEMINI_IMAGE_MODEL and your Gemini plan.');
+    }
+  }
   async createPlan(message: string): Promise<VideoPlan> {
     const raw = await this.ask(videoPlanPrompt(message));
     try { const parsed = JSON.parse(raw.replace(/^```json\s*|\s*```$/g, '')); this.validatePlan(parsed); return parsed as VideoPlan; } catch { throw new BadGatewayException('Gemini returned an invalid video plan'); }

@@ -13,4 +13,5 @@ export class AiService {
     await this.prisma.chatMessage.createMany({ data: [{ conversationId: conversation.id, role: 'User', content: dto.message }, { conversationId: conversation.id, role: 'Gemini', content: reply }] });
     return { conversationId: conversation.id, message: reply };
   }
+  image(dto: { prompt: string; style: string; aspectRatio: string }) { return this.gemini.generateImage(dto.prompt, dto.style, dto.aspectRatio).then((imageUrl) => ({ imageUrl })); }
 }
